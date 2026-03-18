@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+// 1. local.properties에서 키를 읽어오는 로직
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
 
 android {
     namespace = "kr.baeksuk.ccodeproject"
@@ -15,6 +25,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // [수정] BuildConfig 대신 XML 리소스(String)로 등록
+        resValue("string", "maps_api_key", mapsApiKey)
     }
 
     buildTypes {
@@ -26,6 +39,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -36,13 +50,12 @@ android {
 }
 
 dependencies {
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    // Android for Cars App Library (템플릿 앱 개발 핵심 라이브러리)
-    val car_app_version = "1.4.0" // 최신 안정화 버전
-    //noinspection GradleDependency
+    val car_app_version = "1.4.0"
     implementation("androidx.car.app:app:$car_app_version")
-
-    //noinspection GradleDependency
     implementation("androidx.car.app:app-automotive:$car_app_version")
 
     implementation("androidx.core:core-ktx:1.13.0")
